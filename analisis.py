@@ -116,3 +116,26 @@ plt.tight_layout()
 plt.savefig("graficos/4_fraude_mensual.png", dpi=120)
 plt.show()
 plt.close()
+
+# 6.5 Cuello de botella: reclamos que entran vs. capacidad de investigación
+embudo = pd.Series({
+    "Reclamos que entran": len(df) / meses,
+    "Investigados (4 analistas)": df["investigacion_abierta"].sum() / meses,
+    "Fraudes confirmados": df["marca_fraude"].sum() / meses,
+})
+etiquetas = [
+    f"{embudo.iloc[0]:,.0f}",
+    f"{embudo.iloc[1]:,.0f}  ({embudo.iloc[1] / embudo.iloc[0]:.0%} de lo que entra)",
+    f"{embudo.iloc[2]:,.0f}  ({embudo.iloc[2] / embudo.iloc[1]:.0%} de lo investigado)",
+]
+ax = embudo.plot(kind="barh", figsize=(9, 3.5),
+                 title="Cuello de botella: reclamos por mes vs. capacidad de investigación")
+ax.invert_yaxis()
+for i, (v, txt) in enumerate(zip(embudo, etiquetas)):
+    ax.text(v + 8, i, txt, va="center")
+ax.set_xlim(0, embudo.max() * 1.45)
+plt.xlabel("Promedio mensual")
+plt.tight_layout()
+plt.savefig("graficos/5_cuello_botella.png", dpi=120)
+plt.show()
+plt.close()
