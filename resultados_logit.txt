@@ -1,33 +1,85 @@
-               bloque  gl      LR      p  dAIC_al_sacar  dBIC_al_sacar
-10     parte_policial   1  49.498  0.000         47.498         40.009
-5   antiguedad_poliza   1  34.878  0.000         32.878         25.389
-0                tipo   5  28.453  0.000         18.453        -18.992
-7               noche   1  15.904  0.000         13.904          6.415
-11           testigos   1  10.423  0.001          8.423          0.934
-1               canal   3  15.407  0.002          9.407        -13.060
-9             previos   1   9.413  0.002          7.413         -0.076
-6        dias_reporte   2  12.176  0.002          8.176         -6.802
-3               ratio   1   5.928  0.015          3.928         -3.561
-4               monto   1   3.865  0.049          1.865         -5.623
-8       edad_vehiculo   1   3.525  0.060          1.525         -5.964
-2           provincia   6   3.977  0.680         -8.023        -52.956
-                             parametros       AIC       BIC  AUC_test
-M0 completo                        25.0  2279.020  2466.242     0.768
-M1 sin provincia/edad/monto        17.0  2274.484  2401.795     0.770
-M2 categorías agrupadas            12.0  2274.638  2364.505     0.778
-M3 = M2 sin ratio                  11.0  2275.584  2357.961     0.777
-M0 completo vs M1 sin provincia/edad/monto: LR=11.46, gl=8, p=0.177
-M1 sin provincia/edad/monto vs M2 categorías agrupadas: LR=10.15, gl=5, p=0.071
-M2 categorías agrupadas vs M3 = M2 sin ratio: LR=2.95, gl=1, p=0.086
-                        OR  IC95_inf  IC95_sup      p
-Intercept            0.146     0.072     0.295  0.000
-robo_total           9.789     7.474    12.821  0.000
-vidrios              0.268     0.126     0.574  0.001
-canal_taller         1.723     1.278     2.323  0.000
-log_antig            0.705     0.631     0.788  0.000
-dias_reporte_imp     1.083     1.033     1.137  0.001
-sin_fecha_siniestro  0.834     0.508     1.369  0.473
-noche                2.097     1.490     2.952  0.000
-previos              1.345     1.117     1.620  0.002
-hubo_parte_policial  0.402     0.310     0.521  0.000
-hubo_testigos        0.634     0.478     0.841  0.002
+Meses con fecha_siniestro faltante: {'2025-08': 1.0, '2025-09': 1.0, '2025-10': 1.0}
+train: 9,456 reclamos, 191 fraudes
+valid: 3,756 reclamos, 80 fraudes
+test: 3,678 reclamos, 87 fraudes
+
+VIF (train)
+ ratio_monto         2.31
+log_monto           2.28
+log_antig           1.00
+dias_reporte_imp    1.00
+edad_vehiculo       1.00
+previos             1.00
+tasa_taller         1.02
+Name: VIF, dtype: float64
+
+Aporte de cada bloque (train)
+                bloque  gl      LR      p  dAIC_al_sacar  dBIC_al_sacar
+10     parte_policial   1  35.080  0.000         33.080         25.926
+5   antiguedad_poliza   1  27.190  0.000         25.190         18.035
+12             taller   1  11.763  0.001          9.763          2.609
+0                tipo   5  21.662  0.001         11.662        -24.110
+6        dias_reporte   1   6.131  0.013          4.131         -3.023
+3               ratio   1   5.622  0.018          3.622         -3.532
+8       edad_vehiculo   1   4.800  0.028          2.800         -4.354
+1               canal   3   9.061  0.028          3.061        -18.402
+7               noche   1   4.669  0.031          2.669         -4.485
+11           testigos   1   3.383  0.066          1.383         -5.771
+9             previos   1   2.245  0.134          0.245         -6.909
+2           provincia   6   7.688  0.262         -4.312        -47.238
+4               monto   1   1.153  0.283         -0.847         -8.002
+
+Comparación (capacidad = 80 reclamos/mes; test todavía sin mirar)
+                              parametros  BIC_train  AUC_valid  PR_AUC_valid  acierto_topK  fraudes_capturados_pct  colones_capturados_pct
+M0 completo                        25.0   1802.266      0.815         0.120         0.098                   0.588                   0.854
+M1 sin provincia/edad/monto        17.0   1742.837      0.822         0.133         0.098                   0.588                   0.851
+M2 categorías agrupadas            12.0   1707.732      0.823         0.145         0.098                   0.588                   0.857
+M3 = M2 sin ratio                  11.0   1703.422      0.826         0.139         0.096                   0.575                   0.841
+M4 = M3 sin taller                 10.0   1705.661      0.817         0.137         0.090                   0.538                   0.831
+
+M0 completo vs M1 sin provincia/edad/monto: LR=13.81, gl=8, p=0.087
+M1 sin provincia/edad/monto vs M2 categorías agrupadas: LR=10.67, gl=5, p=0.058
+M2 categorías agrupadas vs M3 = M2 sin ratio: LR=4.84, gl=1, p=0.028
+M3 = M2 sin ratio vs M4 = M3 sin taller: LR=11.39, gl=1, p=0.001
+
+Modelo elegido: M3 = M2 sin ratio
+Fraudes por parámetro (EPV) en el ajuste final: 24.6
+
+Test (oct-2025 a mar-2026)
+AUC = 0.790 | PR-AUC = 0.237 | tasa base = 0.024
+                        modelo_topK  analistas_hoy
+acierto_topK                  0.098          0.186
+fraudes_capturados_pct        0.540          1.000
+colones_capturados_pct        0.821          1.000
+Analistas hoy investigan 78 reclamos/mes en test.
+Del top-80 mensual del modelo, 37% ya lo investigaban los analistas; en esos, el acierto es 26.3% (vs 18.6% de todo lo investigado).
+AUC dentro de lo investigado: 0.663 (> 0,5 = el modelo ordena mejor que el azar incluso entre lo que los analistas ya eligieron)
+Reclamos del top-80 que nadie investigó: 301 en 6 meses (su etiqueta es desconocida, no 'limpia').
+
+Calibración en test
+        reclamos  p_media  tasa_obs
+decil                             
+1           368    0.002     0.005
+2           368    0.004     0.005
+3           368    0.005     0.008
+4           367    0.007     0.008
+5           368    0.009     0.008
+6           368    0.012     0.019
+7           367    0.015     0.016
+8           368    0.020     0.016
+9           368    0.030     0.033
+10          368    0.103     0.117
+
+Odds ratios del modelo final
+                         OR  IC95_inf  IC95_sup      p
+Intercept            0.082     0.039     0.173  0.000
+robo_total           8.693     6.626    11.404  0.000
+vidrios              0.271     0.127     0.578  0.001
+canal_taller         1.729     1.282     2.332  0.000
+log_antig            0.704     0.630     0.788  0.000
+dias_reporte_imp     1.086     1.035     1.138  0.001
+noche                2.109     1.498     2.971  0.000
+previos              1.348     1.119     1.623  0.002
+hubo_parte_policial  0.403     0.311     0.523  0.000
+hubo_testigos        0.639     0.482     0.848  0.002
+tasa_taller          1.393     1.210     1.603  0.000
